@@ -76,7 +76,7 @@ namespace Presentation
             slide.Shapes.AddPicture(PictureFiles[0],
                     Office.MsoTriState.msoFalse, Office.MsoTriState.msoTrue,
                     indent, topShape, widthPictureWork, heightPictureWork);
-            
+            int i = 0;
 
             for (int i = 0; i < PictureFiles.Length; i++)
             {
