@@ -2,4 +2,4 @@
 
 Console.WriteLine("Hello, World!");
 
-MyPresentation.CreatePresantation();
+MyPresentation.CreatePresentation();
