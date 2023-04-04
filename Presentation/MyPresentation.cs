@@ -3,6 +3,7 @@ using Office = Microsoft.Office.Core;
 using System.Drawing;
 
 
+
 namespace Presentation
 {
     internal class MyPresentation
@@ -39,30 +40,63 @@ namespace Presentation
 
             float height = customLayout.Height;
             float width = customLayout.Width;
+
+            float widthBlock = customLayout.Width / PictureFiles.Length;
+            float widthLeftIndent = 10;
             
+            float widthBlockWithoutIndent = widthBlock - widthLeftIndent;
+
+            Image image = Image.FromFile(PictureFiles[0]);
+            int heightPicture = image.Height;
+            int widthPicture = image.Width;
+
+            //float indent = widthLeftIndent;
+
+            PowerPoint.Shape shape = slide.Shapes[2];
+
+            textRange = slide.Shapes[1].TextFrame.TextRange;
+            textRange.Text = "Title of Page ";
+            textRange.Font.Name = "Arial";
+            textRange.Font.Size = 32;
+
+            float widthInitShape = widthBlockWithoutIndent;
+            float heightPictureWork = shape.Height;
+
+            float widthPictureWork = widthPicture * heightPictureWork / heightPicture;  
+
+            if (widthPictureWork > widthBlockWithoutIndent)
+            {
+                widthPictureWork = widthBlockWithoutIndent;
+                heightPictureWork = heightPicture * widthBlockWithoutIndent / widthPicture;
+            }  
+
+            float topShape = shape.Top;
+            float indent = widthLeftIndent;
+            float indentBlock = shape.Left;
+            slide.Shapes.AddPicture(PictureFiles[0],
+                    Office.MsoTriState.msoFalse, Office.MsoTriState.msoTrue,
+                    indent, topShape, widthPictureWork, heightPictureWork);
             
 
             for (int i = 0; i < PictureFiles.Length; i++)
             {
-                PowerPoint.Shape shape = slide.Shapes[2];
+
+                //textRange = slide.Shapes[2].TextFrame.TextRange;
+                //textRange.Text = "Content goes here\nYou can add text\nItem 3";
+               // PowerPoint.Shape shapePic = slide.Shapes.AddShape(Office.MsoAutoShapeType.msoShapeRectangle, indent, topShape, widthBlockWithoutIndent, heightPictureWork);
+
+                //slide.Shapes.AddPicture(PictureFiles[i],
+                //    Office.MsoTriState.msoFalse, Office.MsoTriState.msoTrue,
+                //    indent, topShape, widthInitShape, heightInitShape);
                 
-
-                textRange = slide.Shapes[1].TextFrame.TextRange;
-                textRange.Text = "Title of Page ";
-                textRange.Font.Name = "Arial";
-                textRange.Font.Size = 32;
-
-                textRange = slide.Shapes[2].TextFrame.TextRange;
-                textRange.Text = "Content goes here\nYou can add text\nItem 3";
-
-                float otstup = shape.Width / PictureFiles.Length;
-                otstup *= 1f;
                 slide.Shapes.AddPicture(PictureFiles[i],
                     Office.MsoTriState.msoFalse, Office.MsoTriState.msoTrue,
-                    otstup, shape.Top, shape.Width, shape.Height);
+                    indent, topShape, widthPictureWork, heightPictureWork);
+
+                indent += widthBlock;
 
             }
-
+            slide.Shapes[2].Delete();
             presentation.Save();
 
            KillProcessesPowerPoint();
