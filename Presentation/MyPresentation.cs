@@ -3,14 +3,12 @@ using Office = Microsoft.Office.Core;
 using System.Drawing;
 
 
-
 namespace Presentation
 {
     internal class MyPresentation
     {
         public static void CreatePresentation(string[] PictureFiles, int countOfRows, int countOfColumns, bool hasTitle)
-        {
-            
+        {            
             //Создаем объект приложения PowerPoint, в который потом будем добавлять презентации 
             PowerPoint.Application PPApp = new PowerPoint.Application();
 
@@ -44,19 +42,19 @@ namespace Presentation
             //просто разбивает область для картинок на слайде по столбцам и рядам
             (float widthOfBlock, float heightOfBlock) = CalculateHeightWidthOfBlock(customLayout, countOfRows, countOfColumns);
 
-            //Расчет максимально возможного размера для отдельной картинки (размера номинального блока  за вычетом отступа слева)
+            //Расчет максимально возможного размера для отдельной картинки (размера номинального блока за вычетом отступа слева)
             float widthLeftIndent = 20;            
             float widthBlockWithoutIndent = widthOfBlock - widthLeftIndent;
 
-            //начальный отступ по вертикали (положение верхней границы картинки) и горизонтали (положение левой стороны картинки)
+            //Начальный отступ по вертикали (положение верхней границы картинки) и горизонтали (положение левой стороны картинки)
             float initialTopShape = 100;
             float topShape = initialTopShape;
             float indent = widthLeftIndent;
 
-            //костыль. Первая вставка картинки косячная
+            //Костыль. Первая вставка картинки косячная
             List<PowerPoint.Shape> shapesToDelete = new List<PowerPoint.Shape>();           
             shapesToDelete.Add(AddKostyl(slide, PictureFiles[0]));
-            //конец костыля
+            //Конец костыля
 
             //Высота подписи к картинке
             float heightOfLabel = 25;
@@ -66,58 +64,56 @@ namespace Presentation
                 //Расчет размера картинки на слайде
                 (float widthPictureWork, float heightPictureWork) = CalculateHeightWidthOfPicture(PictureFiles[i], widthBlockWithoutIndent, heightOfBlock);
 
-                //добавление картинки на слайд
+                //Добавление картинки на слайд
                 PowerPoint.Shape shapeLabelPic = slide.Shapes.AddPicture2(PictureFiles[i],
                     Office.MsoTriState.msoFalse, Office.MsoTriState.msoTrue,
                     indent, topShape, widthPictureWork, heightPictureWork, Office.MsoPictureCompress.msoPictureCompressFalse);
 
-                //добавление подписи к картинке
+                //Добавление подписи к картинке
                 if (hasTitle)
                 {
                     string fileName = Path.GetFileNameWithoutExtension(PictureFiles[i]);
 
                     PowerPoint.Shape shapeLabel = slide.Shapes.AddLabel(Office.MsoTextOrientation.msoTextOrientationHorizontal,
-                        indent, topShape - heightOfLabel, widthPictureWork, heightOfLabel);
+                                     indent, topShape - heightOfLabel, widthPictureWork, heightOfLabel);
+                    
                     AddText(shapeLabel, fileName, "Arial", 16);
                 }
                 
-                //смещение левой стороны на одну картинку вправо
+                //Смещение левой стороны на одну картинку вправо
                 indent += widthOfBlock;
 
+                //При превышении номера картинки над количеством столбцов переходит на следующую строку
                 if (((i + 1) >= countOfColumns) && ((i + 1) % countOfColumns == 0))
                 {
                     indent = widthLeftIndent;
                     topShape += (heightPictureWork + heightOfLabel);
                 }
 
+                //При заданном количестве картинок на слайде создает новый слайд
                 if (topShape > customLayout.Height)
                 {
                     ++slideID;
                     slide = slides.AddSlide(slideID, customLayout);
+
                     shapesToDelete.Add(AddKostyl(slide, PictureFiles[0]));
+
                     indent = widthLeftIndent;
                     topShape = initialTopShape;
                 }
             }
 
-            //костыль. Первая вставка картинки косячная, удаляем все первые вставленные картинки со всех слайдов.
+            //!!!Костыль. Первая вставка картинки косячная, удаляем все первые вставленные картинки со всех слайдов.
             foreach (PowerPoint.Shape shapeToDelete in shapesToDelete)
                 shapeToDelete.Delete();
-            //конец костыля
+            //Конец костыля
 
             presentation.Save();
            
             KillProcessesPowerPoint();
         }
 
-        private static PowerPoint.Shape AddKostyl(PowerPoint._Slide slide, string file)
-        {
-            //(float widthPictureWork, float heightPictureWork) = CalculateHeightWidthOfPicture(PictureFiles[0], 50, 50);
-            return slide.Shapes.AddPicture(file,
-                    Office.MsoTriState.msoFalse, Office.MsoTriState.msoTrue,
-                    50, 50, 50, 50);
-        }
-
+        //Расчет размеров блока путем деления слайда на количество строк и столбцов
         private static (float width, float height) CalculateHeightWidthOfBlock(PowerPoint.CustomLayout customLayout, int numberOfRows, int numberOfColumns, float scale = 1)
         {   
             float widthBlock = customLayout.Width / numberOfColumns;
@@ -125,6 +121,7 @@ namespace Presentation
             return (widthBlock, heightBlock);
         }        
 
+        //Расчет размеров картинки на слайд
         private static (float width, float height) CalculateHeightWidthOfPicture(string fileOfPicture, float widthOfBlock, float heightOfBlock)
         {    
             Image image = Image.FromFile(fileOfPicture);
@@ -143,6 +140,7 @@ namespace Presentation
             return (widthPictureWork, heightPictureWork);
         }
 
+        //Добавление текста на слайд
         private static PowerPoint.TextRange AddText(PowerPoint.Shape shape, string text, string fontName, float fontSize, PowerPoint.PpParagraphAlignment alignment = PowerPoint.PpParagraphAlignment.ppAlignCenter)
         {
             shape.TextFrame.WordWrap = Office.MsoTriState.msoTrue;
@@ -157,6 +155,7 @@ namespace Presentation
             return textRangeLabel;
         }
 
+        //Завершение всех процессов Powerpoint
         private static void KillProcessesPowerPoint()
         {
             var processes = System.Diagnostics.Process.GetProcessesByName("POWERPNT");
@@ -166,5 +165,12 @@ namespace Presentation
             }
         }
 
+        //Добавляет на слайд певую картинку (она вставится криво). Потом она удаляется
+        private static PowerPoint.Shape AddKostyl(PowerPoint._Slide slide, string file)
+        {
+            return slide.Shapes.AddPicture(file,
+                   Office.MsoTriState.msoFalse, Office.MsoTriState.msoTrue,
+                   50, 50, 50, 50);
+        }
     }
 }
