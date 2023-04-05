@@ -8,7 +8,7 @@ namespace Presentation
 {
     internal class MyPresentation
     {
-        public static void CreatePresentation(string[] PictureFiles, int countOfRows, int countOfColumns)
+        public static void CreatePresentation(string[] PictureFiles, int countOfRows, int countOfColumns, bool hasTitle)
         {
             
             //Создаем объект приложения PowerPoint, в который потом будем добавлять презентации 
@@ -63,19 +63,25 @@ namespace Presentation
 
             for (int i = 0; i < PictureFiles.Length; i++)
             {               
-
+                //Расчет размера картинки на слайде
                 (float widthPictureWork, float heightPictureWork) = CalculateHeightWidthOfPicture(PictureFiles[i], widthBlockWithoutIndent, heightOfBlock);
 
+                //добавление картинки на слайд
                 PowerPoint.Shape shapeLabelPic = slide.Shapes.AddPicture2(PictureFiles[i],
                     Office.MsoTriState.msoFalse, Office.MsoTriState.msoTrue,
-                    indent, topShape, widthPictureWork, heightPictureWork, Office.MsoPictureCompress.msoPictureCompressFalse);                
+                    indent, topShape, widthPictureWork, heightPictureWork, Office.MsoPictureCompress.msoPictureCompressFalse);
 
-                string fileName = Path.GetFileNameWithoutExtension(PictureFiles[i]);
+                //добавление подписи к картинке
+                if (hasTitle)
+                {
+                    string fileName = Path.GetFileNameWithoutExtension(PictureFiles[i]);
 
-                PowerPoint.Shape shapeLabel = slide.Shapes.AddLabel(Office.MsoTextOrientation.msoTextOrientationHorizontal,
-                    indent, topShape - heightOfLabel, widthPictureWork, heightOfLabel);
-                AddText(shapeLabel, fileName, "Arial", 16);
+                    PowerPoint.Shape shapeLabel = slide.Shapes.AddLabel(Office.MsoTextOrientation.msoTextOrientationHorizontal,
+                        indent, topShape - heightOfLabel, widthPictureWork, heightOfLabel);
+                    AddText(shapeLabel, fileName, "Arial", 16);
+                }
                 
+                //смещение левой стороны на одну картинку вправо
                 indent += widthOfBlock;
 
                 if (((i + 1) >= countOfColumns) && ((i + 1) % countOfColumns == 0))
