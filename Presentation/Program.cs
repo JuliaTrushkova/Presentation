@@ -2,4 +2,15 @@
 
 Console.WriteLine("Hello, World!");
 
-MyPresentation.CreatePresentation();
+
+
+string path = @"C:\Users\trushkova\Desktop\test";
+
+string[] files = Directory.GetFiles(path, "*.png");
+
+
+MyPresentation.CreatePresentation(files, 2, 3);
+
+
+
+
