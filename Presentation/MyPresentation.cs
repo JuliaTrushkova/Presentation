@@ -4,7 +4,7 @@ using System.Drawing;
 
 
 namespace Presentation
-{
+{    
     internal class MyPresentation
     {
         public static void CreatePresentation(string[] PictureFiles, int countOfRows, int countOfColumns, bool hasTitle)
@@ -16,7 +16,6 @@ namespace Presentation
             //Чтобы был доступ к Office.MsoTriState нужно напрямую добавить библиотеку office из папки C:\Windows\assembly\GAC_MSIL\office\15.0.0.0__71e9bce111e9429c. Иначе будет ошибка, что нужна библиотека версии 15.0.0.0
             //Просто установка нугета Microsoft.Office.Interop.PowerPoint и COM'а Microsoft.Office16.Objects не помогает
             //MsoTriState - не понятно зачем, пробовала разные значения, презентация одинаковая получается
-
             PowerPoint.Presentation presentation = PPApp.Presentations.Add(Office.MsoTriState.msoFalse);
 
             //Можно добавить существующую: PowerPoint.Presentation presentationTemplate = PPApp.Presentations.Open(filePath);
